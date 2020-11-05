@@ -1,5 +1,6 @@
-import 'dart:html';
+
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class _HomeState extends State<Home> {
 
   List<SliderModel> slides = new List<SliderModel>();
   int currentIndex = 0;
+  PageController pageController = new PageController(initialPage: 0);
 
   @override
   void initState() {
@@ -36,20 +38,27 @@ class _HomeState extends State<Home> {
     super.initState();
     slides = getSlides();
   }
+
+  // Slider Icon
   Widget pageIndexIndicator(bool isCurrentPage) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 2.0),
-      height: 10.0,
-      width: 10.0,
+      margin: EdgeInsets.symmetric(horizontal: 2.0),
+      height: isCurrentPage ? 20.0 : 10.0,
+      width: isCurrentPage ? 20.0 : 10.0,
       decoration: BoxDecoration(
-        color: Colors.grey,
+        color: isCurrentPage ?  Colors.purple : Colors.purpleAccent,
+        borderRadius: BorderRadius.circular(12)
+
       ),
     );
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: PageView.builder(
+        // controller for next and skipp buttons
+        controller: pageController,
         itemCount: slides.length,
           onPageChanged:(val){
           setState(() {
@@ -64,23 +73,35 @@ class _HomeState extends State<Home> {
           );
     }),
       bottomSheet: currentIndex != slides.length-1 ? Container(
-        height: Platform.isIOS 70 : 50,
+        color: Colors.white,
+        height: Platform.isWindows ? 70 : 60,
         padding: EdgeInsets.symmetric(horizontal: 20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
+            // this make the button clickable
             InkWell(
-              onTap: (){},
-                child: Text("SKIP")
+              onTap: (){
+                // make the button jump to the previous page
+                pageController.animateToPage(currentIndex - 1, duration: Duration(milliseconds: 400), curve: Curves.linear);
+              },
+                child: Container(
+                    child: Text("Орқага"))
             ),
             Row(
               children: <Widget>[
                 for(int i=0; i<slides.length; i++) currentIndex == i ?pageIndexIndicator(true) :pageIndexIndicator(false)
+
               ],
             ),
             InkWell(
-                onTap: (){},
-                child: Text("SKIP")
+                onTap: (){
+                  // make the button jump to the nex page
+                  pageController.animateToPage(currentIndex + 1, duration: Duration(milliseconds: 400), curve: Curves.linear);
+                },
+                child: Container(
+                    child: Text("Олдинга"))
+
             ),
           ],
         ),
@@ -99,14 +120,25 @@ class SliderTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      color: Colors.white,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Image.asset(imageAssetPart),
           SizedBox(height: 20,),
-          Text(title),
+          Text(title, style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w200,
+          ),),
           SizedBox(height: 12,),
-          Text(description)
+          Container(
+              child: Text(description,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.w400,
+                fontSize: 16,
+              ),)),
+
 
         ],
       )
